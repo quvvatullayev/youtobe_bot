@@ -69,11 +69,9 @@ class Youtube:
         from io import BytesIO
         but = BytesIO()
         if yt.check_availability() is None:
-            audio = yt.streams.get_by_resolution()
-            audio.stream_to_buffer(buffer=but)
-            but.seek(0)
+            url = yt.thumbnail_url
             title = yt.title
-            updater.bot.sendAudio(id, but, caption=title)
+            updater.bot.sendPhoto(id, url, caption=title)
         else:
             update.message.reply_text('Xatolik ...')
 
@@ -83,7 +81,7 @@ youtube = Youtube()
 
 # add handler to updater
 updater.dispatcher.add_handler(CommandHandler('start', youtube.start))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, youtube.text_sorch))
+updater.dispatcher.add_handler(MessageHandler(Filters.entity('url'), youtube.text_sorch))
 updater.dispatcher.add_handler(CallbackQueryHandler(youtube.get_audio, pattern='🔉MP3'))
 updater.dispatcher.add_handler(CallbackQueryHandler(youtube.get_vidoe,pattern='📹dp'))
 updater.dispatcher.add_handler(CallbackQueryHandler(youtube.get_img, pattern='🖼'))
