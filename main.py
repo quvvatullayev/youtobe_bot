@@ -1,4 +1,5 @@
-from cgitb import text
+from pytube import YouTube
+from pytube import Playlist
 from telegram.ext import Updater,MessageHandler,Filters,CallbackContext,CommandHandler,CallbackQueryHandler
 from telegram import Update,ReplyKeyboardMarkup,KeyboardButton,InlineKeyboardButton,InlineKeyboardMarkup
 
@@ -13,12 +14,23 @@ class Youtube:
         text = 'Assalomu alaykum buzning botga hush kilibsiz!😀😃\nBizning botimz youtube dan vediyo, audio va suratlar yuklab olishingiz mimkun\nlinklarni tashlan📥'
         updater.bot.sendMessage(id, text)
 
-    def get_vedio(self, update:Update, context:CallbackContext):
-        text = update.message.text
+    def get_audio(self, update:Update, context:CallbackContext):
+        url = update.message.text
         id = update.message.from_user.id
-        print(text)
-        # update.message.reply_photo(text)
+        yt = YouTube(url)
+        from io import BytesIO
+        but = BytesIO()
+        if yt.check_availability() is None:
+            audio = yt.streams.get_audio_only()
+            audio.stream_to_buffer(buffer=but)
+            but.seek(0)
+            title = yt.title
+            updater.bot.sendAudio(id, but, caption=title)
+        else:
+            update.message.reply_text('Xatolik ...')
 
+    def get_vidoe(self, update:Update, context:CallbackContext):
+        pass
 
 updater = Updater(TOKEN)
 
@@ -26,7 +38,7 @@ youtube = Youtube()
 
 # add handler to updater
 updater.dispatcher.add_handler(CommandHandler('start', youtube.start))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, youtube.get_vedio))
+updater.dispatcher.add_handler(MessageHandler(Filters.text, youtube.get_audio))
 #Start the bot
 updater.start_polling()
 updater.idle()
